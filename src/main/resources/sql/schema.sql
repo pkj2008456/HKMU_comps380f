@@ -1,0 +1,89 @@
+DROP TABLE IF EXISTS BOOK_COMMENT;
+DROP TABLE IF EXISTS USER_ORDER_BOOK;
+DROP TABLE IF EXISTS USER_ORDERS;
+DROP TABLE IF EXISTS USER_ROLES;
+DROP TABLE IF EXISTS USER_ACCT;
+DROP TABLE IF EXISTS BOOK_COVER_PHOTO;
+DROP TABLE IF EXISTS BOOK_INFO;
+
+create table PUBLIC.BOOK_INFO
+(
+    ID           BIGINT auto_increment
+        primary key,
+    AUTHOR       CHARACTER VARYING(255),
+    AVAILABILITY BOOLEAN,
+    DESCRIPTION  CHARACTER VARYING,
+    NAME         CHARACTER VARYING(255),
+    PRICE        DOUBLE PRECISION not null
+);
+
+create table PUBLIC.BOOK_COVER_PHOTO
+(
+    ID           UUID default RANDOM_UUID() not null
+        primary key,
+    BOOK_ID      BIGINT,
+    CONTENT      BINARY LARGE OBJECT,
+    CONTENT_TYPE CHARACTER VARYING(255),
+    FILENAME     CHARACTER VARYING(255),
+    foreign key (BOOK_ID) references PUBLIC.BOOK_INFO
+);
+
+create table PUBLIC.USER_ACCT
+(
+    USERNAME      CHARACTER VARYING(255) not null
+        primary key,
+    DELIVERY_ADDR CHARACTER VARYING(255),
+    EMAIL_ADDR    CHARACTER VARYING(255),
+    FULL_NAME     CHARACTER VARYING(255),
+    PASSWORD      CHARACTER VARYING(255)
+);
+
+create table PUBLIC.BOOK_COMMENT
+(
+    ID               BIGINT auto_increment
+        primary key,
+    BOOK_ID          BIGINT,
+    CONTENT          CHARACTER VARYING(255),
+    CREATE_TIME      TIMESTAMP,
+    LAST_UPDATE_TIME TIMESTAMP,
+    USER_ID          CHARACTER VARYING(255),
+    foreign key (BOOK_ID) references PUBLIC.BOOK_INFO,
+    foreign key (USER_ID) references PUBLIC.USER_ACCT
+);
+
+create table PUBLIC.USER_ORDERS
+(
+    ID               BIGINT auto_increment
+        primary key,
+    CREATE_TIME      TIMESTAMP,
+    DELIVERY_ADDR    CHARACTER VARYING(255),
+    EMAIL_ADDR       CHARACTER VARYING(255),
+    FULL_NAME        CHARACTER VARYING(255),
+    LAST_UPDATE_TIME TIMESTAMP,
+    TOTAL_PRICE      DOUBLE PRECISION not null,
+    USER_ID          CHARACTER VARYING(255),
+    foreign key (USER_ID) references PUBLIC.USER_ACCT
+);
+
+create table PUBLIC.USER_ORDER_BOOK
+(
+    ID          UUID default RANDOM_UUID() not null
+        primary key,
+    AUTHOR      CHARACTER VARYING(255),
+    DESCRIPTION CHARACTER VARYING,
+    NAME        CHARACTER VARYING(255),
+    ORDER_ID    BIGINT,
+    PRICE       DOUBLE PRECISION           not null,
+    QUANTITY    INTEGER,
+    foreign key (ORDER_ID) references PUBLIC.USER_ORDERS
+);
+
+create table PUBLIC.USER_ROLES
+(
+    USER_ROLE_ID INTEGER auto_increment
+        primary key,
+    ROLE         CHARACTER VARYING(255),
+    USERNAME     CHARACTER VARYING(255),
+    foreign key (USERNAME) references PUBLIC.USER_ACCT
+);
+
